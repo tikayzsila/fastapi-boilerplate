@@ -1,5 +1,5 @@
 import ormar
-from wd_rmis.db import BaseMeta
+from wd_rmis.utils.db import BaseMeta
 
 class DBUser(ormar.Model):
     class Meta(BaseMeta):

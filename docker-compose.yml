@@ -1,3 +1,5 @@
+#нужно добавить бд и миграции при старте
+
 version: '3.8'
 services:
 
@@ -18,4 +20,3 @@ networks:
   landing_api:
     name: rmis_api
     driver: bridge
-
