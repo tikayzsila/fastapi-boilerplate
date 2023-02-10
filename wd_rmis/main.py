@@ -1,8 +1,10 @@
 from fastapi import FastAPI, APIRouter
 import os, logging
-from wd_rmis.utils.db import database
-from wd_rmis.utils.log_conf import LogConfig
+from .utils.db import database
+from .utils.log_conf import LogConfig
+from .controllers.user import users_router
 from logging.config import dictConfig
+
 
 dictConfig(LogConfig().dict())
 logger = logging.getLogger("default_logger")
@@ -11,10 +13,15 @@ if os.environ.get("ENV") == 'prod':
 else:
     app = FastAPI()
 
+
 api = APIRouter(
     prefix="/api",
+    tags=['all api'],
     responses={404: {"description": "Страница не найдена"}},
 )
+
+api.include_router(users_router)
+app.include_router(api)
 
 @app.on_event("startup")
 async def startup():
@@ -25,10 +32,3 @@ async def startup():
 async def shutdown():
     if database.is_connected:
         await database.disconnect()
-
-
-@api.get("/home")
-async def home_route():
-    return {"message": "Hello World"}
-
-app.include_router(router=api)

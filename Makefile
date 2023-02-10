@@ -24,3 +24,6 @@ up:
 # перед апгрейдом нужно создать миграцию командой poetry run alembic revision --autogenerate -m "Название миграции"
 migrate:
 	poetry run alembic upgrade head
+
+key:
+	openssl rand -hex 32
