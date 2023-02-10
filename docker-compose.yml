@@ -1,0 +1,21 @@
+version: '3.8'
+services:
+
+  rmis_api:
+    image: gitlab.space-tech.online:5050/ivanov_vs/rmis_api:${ENV}
+    container_name: landing_api
+    build: ./
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - "8456:${PORT}"
+    networks:
+      - rmis_api
+    command: gunicorn --bind ${HOST}:${PORT} "${APP_MODULE}" -k uvicorn.workers.UvicornWorker
+
+networks:
+  landing_api:
+    name: rmis_api
+    driver: bridge
+
