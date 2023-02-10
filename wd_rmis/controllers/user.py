@@ -1,7 +1,6 @@
 from fastapi import Depends, HTTPException, status, APIRouter
 from datetime import timedelta
-from fastapi.security import OAuth2PasswordRequestForm
-from ..schemas.user import CreateUser, User, GetAllUsers
+from ..schemas.user import CreateUser, User, GetAllUsers, LoginUser
 from ..schemas.token import Token
 from ..schemas.message import Message
 from ..models.user import DBUser
@@ -13,7 +12,7 @@ users_router = APIRouter(
     responses={404: {"description": "Страница не найдена"}},
 )
 
-@users_router.post("/registration", response_model=User, responses={404: {"model":Message},
+@users_router.post("/", response_model=User, responses={404: {"model":Message},
                                                           409: {"model":Message}
                                                           })
 async def create_user(*, user: CreateUser) -> CreateUser:
@@ -35,3 +34,29 @@ async def create_user(*, user: CreateUser) -> CreateUser:
     )
     
     return user_data
+
+@users_router.post("/auth", response_model=Token)
+async def login_for_token(user: LoginUser) -> dict[str, str]:
+    user = await j.authenticate_user(user.login, user.password)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect login or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    access_token_expires = timedelta(minutes=j.ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = j.create_access_token(
+        data={"sub": user.login}, expires_delta=access_token_expires
+    )
+    return {"access_token": access_token, "token_type": "bearer"}
+
+@users_router.get("/",response_model=GetAllUsers, responses={
+                                                404: {"model":Message},
+                                                }
+                                            )
+async def get_users(users: GetAllUsers = Depends(j.get_current_user)) -> GetAllUsers:
+
+    users = GetAllUsers(
+        users = await DBUser.objects.all()
+    )
+    return users

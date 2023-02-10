@@ -17,5 +17,9 @@ class User(BaseModel):
     fio: str
     role: str
 
+class LoginUser(BaseModel):
+    login: str
+    password: str
+
 class GetAllUsers(BaseModel):
     users: List[User]
