@@ -1,5 +1,6 @@
 import ormar
 from ..utils.db import BaseMeta
+from .role import DBRole
 
 class DBUser(ormar.Model):
     class Meta(BaseMeta):
@@ -9,4 +10,4 @@ class DBUser(ormar.Model):
     login: str = ormar.String(max_length=64, unique=True)
     fio : str = ormar.String(max_length=128)
     password : str = ormar.String(max_length=128)
-    role : str = ormar.String(max_length=64)
+    role_id : int = ormar.ForeignKey(DBRole)

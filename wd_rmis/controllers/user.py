@@ -6,6 +6,7 @@ from ..schemas.message import Message
 from ..models.user import DBUser
 from ..utils import jwt as j
 
+
 users_router = APIRouter(
     prefix="/user",
     tags=['users api'],
@@ -24,13 +25,13 @@ async def create_user(*, user: CreateUser) -> CreateUser:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT,
                 detail=f"Пользователь с логином {check_login.login} уже существует")
     
-    q = await DBUser.objects.create(login=user.login, fio=user.fio, password=passwd, role=user.role)
+    q = await DBUser.objects.create(login=user.login, fio=user.fio, password=passwd, role_id=user.role_id)
     
     user_data = User(
         user_id=q.user_id,
         login=user.login,
         fio=user.fio,
-        role=user.role,
+        role_id=user.role_id,
     )
     
     return user_data
@@ -52,11 +53,15 @@ async def login_for_token(user: LoginUser) -> dict[str, str]:
 
 @users_router.get("/",response_model=GetAllUsers, responses={
                                                 404: {"model":Message},
-                                                }
+                                                },
+                   dependencies=[Depends(j.get_current_user)]
                                             )
-async def get_users(users: GetAllUsers = Depends(j.get_current_user)) -> GetAllUsers:
+async def get_users(data: GetAllUsers) -> GetAllUsers:
 
-    users = GetAllUsers(
-        users = await DBUser.objects.all()
+    users_data = await DBUser.objects.values(['user_id', 'login', 'fio','role_id'])
+
+    data = GetAllUsers(
+        users = users_data
     )
-    return users
+
+    return data

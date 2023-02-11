@@ -1,10 +1,11 @@
 from pydantic import BaseModel, Extra
+from ..models.user import DBUser
 from typing import List
 
 class CreateUser(BaseModel):
     login: str
     fio: str
-    role: str
+    role_id: int
     password: str
 #    confirm_password: str
 
@@ -15,7 +16,7 @@ class User(BaseModel):
     user_id: int
     login: str
     fio: str
-    role: str
+    role_id: int
 
 class LoginUser(BaseModel):
     login: str
@@ -23,3 +24,4 @@ class LoginUser(BaseModel):
 
 class GetAllUsers(BaseModel):
     users: List[User]
+

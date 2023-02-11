@@ -3,6 +3,7 @@ import os, logging
 from .utils.db import database, conn_to_db
 from .utils.log_conf import LogConfig
 from .controllers.user import users_router
+from .controllers.role import roles_router
 from logging.config import dictConfig
 
 
@@ -16,11 +17,11 @@ else:
 
 api = APIRouter(
     prefix="/api",
-    tags=['all api'],
     responses={404: {"description": "Страница не найдена"}},
 )
 
 api.include_router(users_router)
+api.include_router(roles_router)
 app.include_router(api)
 
 @app.on_event("startup")

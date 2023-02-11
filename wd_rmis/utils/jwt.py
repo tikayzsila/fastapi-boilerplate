@@ -32,7 +32,7 @@ def create_access_token(data: dict[str, str | None], expires_delta: timedelta | 
 async def get_user_from_db(login : str) -> DBUser | None:
     return await DBUser.objects.get_or_none(login=login)
 
-async def get_current_user(request: Request, token: str = Depends(auth_scheme)) -> DBUser:
+async def get_current_user(request: Request, token: str = Depends(auth_scheme)) -> None:
     cred_exeption = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
@@ -57,6 +57,8 @@ async def get_current_user(request: Request, token: str = Depends(auth_scheme)) 
     token = parts[1]
 
     try:
+        
+        # добавить метод для получения пейлоада токена
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         login: str = payload.get("sub")
         if login is None:
@@ -68,7 +70,7 @@ async def get_current_user(request: Request, token: str = Depends(auth_scheme)) 
     
     if user is None:
         raise cred_exeption
-    return user
+#    return user
 
 async def authenticate_user(login: str, password: str) -> DBUser | bool:
     user = await get_user_from_db(login=login)

@@ -16,6 +16,7 @@ metadata = sqlalchemy.MetaData()
 class BaseMeta(ormar.ModelMeta):
     database = database
     metadata = metadata
+
 async def conn_to_db():
     while True:
         try:
@@ -25,5 +26,8 @@ async def conn_to_db():
         except:
             print('Postgres is unavailable - sleeping')
             time.sleep(1)
-    subprocess.run('alembic upgrade head', shell=True, check=True)
+    subprocess.run('poetry run alembic upgrade head', shell=True, check=True)
     print('Postgres is up - executing command')
+
+#async def seed_data():
+    
