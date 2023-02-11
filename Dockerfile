@@ -16,7 +16,7 @@ COPY pyproject.toml poetry.lock ./
 RUN pip install poetry
 COPY . .
 RUN poetry build --format wheel
-RUN poetry export --format requirements.txt --output constraints.txt --without-hashes --without dev
+RUN poetry export --format requirements.txt --output requirements.txt --without-hashes --without dev
 
 FROM python:3.10.9-slim
 
@@ -25,10 +25,12 @@ ARG APP_PATH=/opt/$APP_NAME
 WORKDIR $APP_PATH
 
 RUN useradd serve && groupadd -r prod && chown serve:prod $APP_PATH
-COPY --from=builder --chown=serve:prod $APP_PATH/dist/*.whl ./
-COPY --from=builder --chown=serve:prod $APP_PATH/constraints.txt ./
+COPY --from=builder --chown=serve:prod $APP_PATH/dist/*.whl \ 
+                    $APP_PATH/requirements.txt \
+                    $APP_PATH/alembic.ini \
+                    $APP_PATH/start.sh ./
+COPY --from=builder --chown=serve:prod $APP_PATH/migrations ./migrations
 
-RUN pip install *.whl --constraint constraints.txt && rm *.txt *.whl
-RUN chmod ugo-rwx -R /usr/bin && chmod ugo-rwx -R /bin
-
+RUN pip install *.whl -r requirements.txt && rm *.txt *.whl
 USER serve
+#CMD [ "./start.sh" ]

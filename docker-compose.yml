@@ -1,22 +1,52 @@
-#нужно добавить бд и миграции при старте
-
 version: '3.8'
 services:
 
   rmis_api:
     image: gitlab.space-tech.online:5050/ivanov_vs/rmis_api:${ENV}
-    container_name: landing_api
+    container_name: rmis_api
     build: ./
     restart: always
     env_file:
       - .env
+    environment:
+      POSTGRES_PASSWORD: ${PG_PASSWORD}
+      POSTGRES_DB: ${PG_DB}
+      POSTGRES_USER: ${PG_USER}
+      POSTGRES_PORT: 5432
+      POSTGRES_POOL: 10
     ports:
       - "8456:${PORT}"
     networks:
       - rmis_api
+    depends_on:
+      - rmis_db
     command: gunicorn --bind ${HOST}:${PORT} "${APP_MODULE}" -k uvicorn.workers.UvicornWorker
 
+  rmis_db:
+    image: postgres:alpine
+    container_name: rmis_db
+    restart: always
+    ports:
+      - "3300:5432"
+    env_file:
+      - .env
+    environment:
+      PGDATA: /var/lib/postgresql/data
+      POSTGRES_PASSWORD: ${PG_PASSWORD}
+      POSTGRES_DB: ${PG_DB}
+      POSTGRES_USER: ${PG_USER}
+      POSTGRES_PORT: 5432
+      POSTGRES_POOL: 10
+    networks:
+      - rmis_api
+
+#    volumes:
+#      - pg_data:/var/lib/postgresql/data
+
+#volumes:
+#  pg_data:
+
 networks:
-  landing_api:
+  rmis_api:
     name: rmis_api
     driver: bridge
