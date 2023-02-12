@@ -1,0 +1,29 @@
+{
+    "roles":[
+        {
+            "name":"admin",
+            "description":"admin role"
+        },
+
+        {
+            "name":"user",
+            "description":"user role"  
+        }
+    ],
+
+    "users":[
+        {
+            "login":"adm",
+            "fio":"Admin Adminovich",
+            "password":"adm",
+            "role_id":1
+        },
+
+        {
+            "login":"test",
+            "fio":"Test Testovich",
+            "password":"test",
+            "role_id":2
+        }
+    ]
+}

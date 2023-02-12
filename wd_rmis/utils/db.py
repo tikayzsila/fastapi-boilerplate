@@ -1,4 +1,6 @@
 import databases, ormar, os, psycopg2, sqlalchemy, time, subprocess
+import json
+from alembic import op
 from typing import Union
 
 
@@ -28,6 +30,3 @@ async def conn_to_db():
             time.sleep(1)
     subprocess.run('poetry run alembic upgrade head', shell=True, check=True)
     print('Postgres is up - executing command')
-
-#async def seed_data():
-    

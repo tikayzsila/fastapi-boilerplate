@@ -28,9 +28,9 @@ RUN useradd serve && groupadd -r prod && chown serve:prod $APP_PATH
 COPY --from=builder --chown=serve:prod $APP_PATH/dist/*.whl \ 
                     $APP_PATH/requirements.txt \
                     $APP_PATH/alembic.ini \
+                    $APP_PATH/seed.json \
                     $APP_PATH/start.sh ./
 COPY --from=builder --chown=serve:prod $APP_PATH/migrations ./migrations
 
 RUN pip install *.whl -r requirements.txt && rm *.txt *.whl
 USER serve
-#CMD [ "./start.sh" ]

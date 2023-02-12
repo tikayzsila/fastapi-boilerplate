@@ -1,5 +1,6 @@
 from fastapi import FastAPI, APIRouter
 import os, logging
+from .utils.seed import seed_data
 from .utils.db import database, conn_to_db
 from .utils.log_conf import LogConfig
 from .controllers.user import users_router
@@ -24,11 +25,15 @@ api.include_router(users_router)
 api.include_router(roles_router)
 app.include_router(api)
 
+
 @app.on_event("startup")
 async def startup():
     if not database.is_connected:
         await conn_to_db()
         await database.connect()
+        await seed_data('roles')
+        await seed_data('users')
+
 
 @app.on_event("shutdown")
 async def shutdown():

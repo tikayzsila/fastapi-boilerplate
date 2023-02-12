@@ -1,4 +1,5 @@
 .envrc
 .venv
+seed.json
 __pycache__/
 *.pyc
