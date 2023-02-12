@@ -1,14 +1,26 @@
-import json
-from .db import URL
+import json, os
 from asyncpg.exceptions import UniqueViolationError
 from ..models.user import DBUser
 from ..models.role import DBRole
+from jinja2 import Environment, FileSystemLoader
+
+
+async def generate_seed_file():
+    env = Environment(loader = FileSystemLoader(''),   
+                trim_blocks=True, lstrip_blocks=True)
+    templ = env.get_template('seed.j2')
+    
+    admin_data = {}
+    admin_data['adm_login']=os.environ.get('DEFAULT_ADMIN_USERNAME')
+    admin_data['adm_password']=os.environ.get('DEFAULT_ADMIN_PASSWORD')
+    data = templ.render(admin_data)
+
+    return json.loads(data)
 
 async def get_data_from_file(table_name):
-    f = open("seed.json")
-    data = json.load(f)
+    data = await generate_seed_file()
     return data[f'{table_name}']
-        
+
 async def seed_data(table_name):
     raw_data =  await get_data_from_file(table_name)
     match table_name:
@@ -16,7 +28,7 @@ async def seed_data(table_name):
             try:
                 for v in raw_data:
                     await DBRole.objects.create(name=v['name'], description=v['description'])
-                    print("seed roles")
+                print("seed roles")
             except UniqueViolationError:
                 print("roles data already in db")
                 
@@ -29,6 +41,6 @@ async def seed_data(table_name):
                         role_id=v['role_id'],
                         password=v['password']
                     )
-                    print("seed users")
+                print("seed users")
             except UniqueViolationError:
                 print("seed users data already in db")
