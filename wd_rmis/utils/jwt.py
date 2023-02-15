@@ -70,7 +70,7 @@ async def get_current_user(request: Request, token: str = Depends(auth_scheme)) 
     
     if user is None:
         raise cred_exeption
-#    return user
+    return user
 
 async def authenticate_user(login: str, password: str) -> DBUser | bool:
     user = await get_user_from_db(login=login)

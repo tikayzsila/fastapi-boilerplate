@@ -2,6 +2,7 @@ import json, os
 from asyncpg.exceptions import UniqueViolationError
 from ..models.user import DBUser
 from ..models.role import DBRole
+from .jwt import get_password_hash
 from jinja2 import Environment, FileSystemLoader
 
 
@@ -39,7 +40,7 @@ async def seed_data(table_name):
                         login=v['login'],
                         fio=v['fio'],
                         role_id=v['role_id'],
-                        password=v['password']
+                        password=get_password_hash(v['password']),
                     )
                 print("seed users")
             except UniqueViolationError:

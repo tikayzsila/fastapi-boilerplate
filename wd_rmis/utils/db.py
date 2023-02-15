@@ -27,6 +27,6 @@ async def conn_to_db():
             break
         except:
             print('Postgres is unavailable - sleeping')
-            time.sleep(1)
-    subprocess.run('poetry run alembic upgrade head', shell=True, check=True)
+            time.sleep(1) #poetry run 
+    subprocess.run('alembic upgrade head', shell=True, check=True)
     print('Postgres is up - executing command')
