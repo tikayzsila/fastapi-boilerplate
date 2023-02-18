@@ -1,5 +1,6 @@
 from fastapi import Depends, HTTPException, status, APIRouter
 from datetime import timedelta
+from .role import check_admin_role
 from ..schemas.user import CreateUser, User, GetAllUsers, LoginUser, UpdateUser
 from ..schemas.token import Token
 from ..schemas.message import Message
@@ -15,7 +16,8 @@ users_router = APIRouter(
 
 @users_router.post("/", response_model=User, responses={404: {"model":Message},
                                                           409: {"model":Message}
-                                                          })
+                                                          },
+                   dependencies=[Depends(j.get_current_user), Depends(check_admin_role)])
 async def create_user(*, user: CreateUser) -> CreateUser:
     # добавить проверку роли
     passwd = j.get_password_hash(user.password)
@@ -44,9 +46,12 @@ async def login_for_token(user: LoginUser) -> dict[str, str]:
             detail="Incorrect login or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
+    user_data = await DBUser.objects.filter(login=user.login).values(['login','role_id'])
+    payload_string = user_data[0]['login'] + ', ' + str(user_data[0]['role_id'])
+    
     access_token_expires = timedelta(minutes=j.ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = j.create_access_token(
-        data={"sub": user.login}, expires_delta=access_token_expires
+        data={"sub": payload_string}, expires_delta=access_token_expires
     )
     return {"access_token": access_token, "token_type": "bearer"}
 
@@ -66,7 +71,7 @@ async def get_users() -> GetAllUsers:
 @users_router.put("/{id}", response_model=User, responses={
                                                 404: {"model":Message},
                                                 },
-                   dependencies=[Depends(j.get_current_user)]
+                   dependencies=[Depends(j.get_current_user), Depends(check_admin_role)]
                                             )
 async def update_user(id: int, data: UpdateUser) -> User:
     

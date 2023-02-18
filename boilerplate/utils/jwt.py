@@ -71,11 +71,11 @@ async def get_current_user(request: Request, token: str = Depends(auth_scheme)) 
     except errors.BadSignatureError:
         raise cred_exeption
 
-    user = await get_user_from_db(login=login)
-    
-    if user is None:
+    data=login.split(',')
+    login = data[0]
+    if await get_user_from_db(login=login) is None:
         raise cred_exeption
-    return user
+
 
 async def authenticate_user(login: str, password: str) -> DBUser | bool:
     user = await get_user_from_db(login=login)
@@ -85,3 +85,22 @@ async def authenticate_user(login: str, password: str) -> DBUser | bool:
     if not verify_password(password, user.password):
         return False
     return user
+
+async def get_token_data(token: str):
+    cred_exeption = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+
+    try:
+        # добавить метод для получения пейлоада токена
+        payload = jwt.decode(token, PUBLIC_KEY_PEM)
+        data: str = payload.get("sub")
+        
+        if data is None:
+            raise cred_exeption
+    except errors.BadSignatureError:
+        raise cred_exeption
+
+    return data.split(',')
