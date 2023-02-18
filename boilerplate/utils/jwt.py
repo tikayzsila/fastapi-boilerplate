@@ -1,13 +1,17 @@
-import os
 from ..models.user import DBUser
 from passlib.context import CryptContext
 from datetime import datetime, timedelta
 from fastapi import Depends, HTTPException, status, Request
 from fastapi.security import HTTPBearer
-from jose import JWTError, jwt
+from authlib.jose import jwt, errors
 
-SECRET_KEY = os.environ.get('SECRET_KEY')
-ALGORITHM = "HS256"
+from cryptography.hazmat.primitives import serialization
+from cryptography import x509
+
+cert_data = open("certs/sign.pem", "r").read()
+PUBLIC_KEY_PEM = x509.load_pem_x509_certificate(str.encode(cert_data)).public_bytes(serialization.Encoding.PEM)
+
+ALGORITHM = {'alg': 'HS256'}
 ACCESS_TOKEN_EXPIRE_MINUTES = 500
 
 auth_scheme = HTTPBearer()
@@ -22,13 +26,12 @@ def get_password_hash(password : str) -> str:
 def create_access_token(data: dict[str, str | None], expires_delta: timedelta | None = None) -> str:
     
     to_encode = data.copy()
-    
     if expires_delta:
         expire = datetime.utcnow() + expires_delta
     else:
         expire = datetime.utcnow() + timedelta(minutes=15)
     to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    encoded_jwt = jwt.encode(header=ALGORITHM, payload=to_encode, key=PUBLIC_KEY_PEM)
     return encoded_jwt
 
 async def get_user_from_db(login : str) -> DBUser | None:
@@ -60,12 +63,12 @@ async def get_current_user(request: Request, token: str = Depends(auth_scheme)) 
 
     try:
         # добавить метод для получения пейлоада токена
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        payload = jwt.decode(token, PUBLIC_KEY_PEM)
         login: str = payload.get("sub")
         
         if login is None:
             raise cred_exeption
-    except JWTError:
+    except errors.BadSignatureError:
         raise cred_exeption
 
     user = await get_user_from_db(login=login)
