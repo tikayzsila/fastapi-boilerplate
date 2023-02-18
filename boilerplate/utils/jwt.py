@@ -20,7 +20,9 @@ def get_password_hash(password : str) -> str:
     return pwd_context.hash(password)
 
 def create_access_token(data: dict[str, str | None], expires_delta: timedelta | None = None) -> str:
+    
     to_encode = data.copy()
+    
     if expires_delta:
         expire = datetime.utcnow() + expires_delta
     else:
@@ -57,10 +59,10 @@ async def get_current_user(request: Request, token: str = Depends(auth_scheme)) 
     token = parts[1]
 
     try:
-        
         # добавить метод для получения пейлоада токена
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         login: str = payload.get("sub")
+        
         if login is None:
             raise cred_exeption
     except JWTError:

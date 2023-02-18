@@ -38,7 +38,6 @@ async def seed_data(table_name):
                 for v in raw_data:
                     await DBUser.objects.create(
                         login=v['login'],
-                        fio=v['fio'],
                         role_id=v['role_id'],
                         password=get_password_hash(v['password']),
                     )
