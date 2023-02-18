@@ -25,9 +25,6 @@ up:
 migrate:
 	poetry run alembic upgrade head
 
-key:
-	openssl rand -hex 32
-
 cert:
 	openssl req -newkey rsa:2048 -new -nodes -x509 -days 3650 -keyout certs/key.pem -out certs/sign.pem -subj '/CN=test'
 c:
