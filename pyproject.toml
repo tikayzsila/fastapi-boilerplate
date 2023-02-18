@@ -1,10 +1,10 @@
 [tool.poetry]
-name = "wd-rmis"
+name = "boilerplate"
 version = "0.1.0"
 description = ""
 authors = ["Иванов Владислав Сергеевич <ivanov_vs@rubin.local>"]
 readme = "README.md"
-packages = [{include = "wd_rmis"}]
+packages = [{include = "boilerplate"}]
 
 [tool.poetry.dependencies]
 python = "^3.8"

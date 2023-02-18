@@ -6,14 +6,27 @@ from .utils.log_conf import LogConfig
 from .controllers.user import users_router
 from .controllers.role import roles_router
 from logging.config import dictConfig
-
+from fastapi.middleware import Middleware
+from fastapi.middleware.cors import CORSMiddleware
 
 dictConfig(LogConfig().dict())
 logger = logging.getLogger("default_logger")
+
+middleware = [
+    Middleware(
+        CORSMiddleware,
+        allow_origins=['*'],
+        allow_credentials=True,
+        allow_methods=['*'],
+        allow_headers=['*']
+    )
+]
+
+
 if os.environ.get("ENV") == 'prod':
-    app = FastAPI(openapi_url=None, docs_url=None, redoc_url=None)
+    app = FastAPI(middleware=middleware, openapi_url=None, docs_url=None, redoc_url=None)
 else:
-    app = FastAPI()
+    app = FastAPI(middleware=middleware)
 
 
 api = APIRouter(

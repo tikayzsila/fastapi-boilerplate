@@ -1,9 +1,9 @@
 version: '3.8'
 services:
 
-  rmis_api:
-    image: gitlab.space-tech.online:5050/ivanov_vs/rmis_api:${ENV}
-    container_name: rmis_api
+  app_api:
+    #image: gitlab.space-tech.online:5050/ivanov_vs/app_api:${ENV}
+    container_name: app_api
     build: ./
     restart: always
     env_file:
@@ -17,14 +17,14 @@ services:
     ports:
       - "8456:${PORT}"
     networks:
-      - rmis_api
+      - app_api
     depends_on:
-      - rmis_db
+      - app_db
     command: gunicorn --bind ${HOST}:${PORT} "${APP_MODULE}" -k uvicorn.workers.UvicornWorker
 
-  rmis_db:
+  app_db:
     image: postgres:alpine
-    container_name: rmis_db
+    container_name: app_db
     restart: always
     ports:
       - "3300:5432"
@@ -38,7 +38,7 @@ services:
       POSTGRES_PORT: 5432
       POSTGRES_POOL: 10
     networks:
-      - rmis_api
+      - app_apis
 
 #    volumes:
 #      - pg_data:/var/lib/postgresql/data
@@ -47,6 +47,6 @@ services:
 #  pg_data:
 
 networks:
-  rmis_api:
-    name: rmis_api
+  app_api:
+    name: app_api
     driver: bridge

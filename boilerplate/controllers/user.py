@@ -51,12 +51,12 @@ async def login_for_token(user: LoginUser) -> dict[str, str]:
     )
     return {"access_token": access_token, "token_type": "bearer"}
 
-@users_router.get("/",response_model=GetAllUsers, responses={
+@users_router.get("/", response_model=GetAllUsers, responses={
                                                 404: {"model":Message},
                                                 },
                    dependencies=[Depends(j.get_current_user)]
                                             )
-async def get_users(data: GetAllUsers) -> GetAllUsers:
+async def get_users() -> GetAllUsers:
 
     users_data = await DBUser.objects.values(['user_id', 'login', 'fio','role_id'])
 

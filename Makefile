@@ -27,3 +27,6 @@ migrate:
 
 key:
 	openssl rand -hex 32
+
+c:
+	py3clean .

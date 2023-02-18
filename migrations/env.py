@@ -2,9 +2,9 @@ from logging.config import fileConfig
 
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
-from wd_rmis.models.user import DBUser
-from wd_rmis.models.role import DBRole
-from wd_rmis.utils.db import URL, BaseMeta
+from boilerplate.models.user import DBUser
+from boilerplate.models.role import DBRole
+from boilerplate.utils.db import URL, BaseMeta
 from alembic import context
 
 # this is the Alembic Config object, which provides
