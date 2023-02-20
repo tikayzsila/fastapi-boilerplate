@@ -21,16 +21,16 @@
 
 ## .env файл
 > APP_MODULE=boilerplate.main:app
-HOST=0.0.0.0
-PORT=8001
-ENV=dev
-PG_USER=postgres
-PG_PASSWORD=postgres
-PG_DB=myDB
-PG_PORT=5432
-DEFAULT_ADMIN_USERNAME=adm
-DEFAULT_ADMIN_PASSWORD=adm
-PG_HOST=app_db
+  HOST=0.0.0.0
+  PORT=8001
+  ENV=dev
+  PG_USER=postgres
+  PG_PASSWORD=postgres
+  PG_DB=myDB
+  PG_PORT=5432
+  DEFAULT_ADMIN_USERNAME=adm
+  DEFAULT_ADMIN_PASSWORD=adm
+  PG_HOST=app_db
 
 Переменная ENV отвечает за отображение docs, на прод сервере должно быть значение "prod"
 Переменные host и app_module подставляются в команду для запуска приложения
