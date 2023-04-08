@@ -1,10 +1,11 @@
 from ..models.user import DBUser
+from ..models.users_tokens import DBUsersTokens
 from passlib.context import CryptContext
 from datetime import datetime, timedelta
 from fastapi import Depends, HTTPException, status, Request
 from fastapi.security import HTTPBearer
 from authlib.jose import jwt, errors
-
+import secrets, os
 from cryptography.hazmat.primitives import serialization
 from cryptography import x509
 
@@ -12,10 +13,16 @@ cert_data = open("certs/sign.pem", "r").read()
 PUBLIC_KEY_PEM = x509.load_pem_x509_certificate(str.encode(cert_data)).public_bytes(serialization.Encoding.PEM)
 
 ALGORITHM = {'alg': 'HS256'}
-ACCESS_TOKEN_EXPIRE_MINUTES = 500
-
+USERS_TO_CHECK = {}
 auth_scheme = HTTPBearer()
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+def create_user_key():
+    return secrets.token_urlsafe(32)
+
+async def get_users_key(id: int | None):
+    data = await DBUser.objects.filter(user_id=id).values_list(flatten=True, fields='key')
+    return data[0]
 
 def verify_password(plain_pass : str, hashed_pass : str) -> bool:
     return pwd_context.verify(plain_pass, hashed_pass)
@@ -23,7 +30,7 @@ def verify_password(plain_pass : str, hashed_pass : str) -> bool:
 def get_password_hash(password : str) -> str:
     return pwd_context.hash(password)
 
-def create_access_token(data: dict[str, str | None], expires_delta: timedelta | None = None) -> str:
+def create_access_token(user_key: str | None, data: dict[str, str | None], expires_delta: timedelta | None = None) -> bytes:
     
     to_encode = data.copy()
     if expires_delta:
@@ -31,7 +38,7 @@ def create_access_token(data: dict[str, str | None], expires_delta: timedelta | 
     else:
         expire = datetime.utcnow() + timedelta(minutes=15)
     to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(header=ALGORITHM, payload=to_encode, key=PUBLIC_KEY_PEM)
+    encoded_jwt = jwt.encode(header=ALGORITHM, payload=to_encode, key=user_key)
     return encoded_jwt
 
 async def get_user_from_db(login : str) -> DBUser | None:
@@ -60,19 +67,16 @@ async def get_current_user(request: Request, token: str = Depends(auth_scheme)) 
             detail='Authorization header be Bearer token')
     
     token = parts[1]
-
+    user_id = await DBUsersTokens.objects.filter(acc_token=token).values_list(flatten=True, fields='user_id')
     try:
-        # добавить метод для получения пейлоада токена
-        payload = jwt.decode(token, PUBLIC_KEY_PEM)
+        user_key = await get_users_key(user_id[0])
+        payload = jwt.decode(token, user_key)
         login: str = payload.get("sub")
-        
         if login is None:
             raise cred_exeption
-    except errors.BadSignatureError:
+    except (errors.BadSignatureError, IndexError):
         raise cred_exeption
 
-    data=login.split(',')
-    login = data[0]
     if await get_user_from_db(login=login) is None:
         raise cred_exeption
 

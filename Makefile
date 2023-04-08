@@ -16,6 +16,7 @@ db:
 				-e POSTGRES_USER=$$PG_USER\
 				-e POSTGRES_PASSWORD=$$PG_PASSWORD\
 				-e POSTGRES_DB=$$PG_DB\
+				-e TZ=GMT-3\
 				-p $$PG_PORT:5432 -d --rm postgres:alpine
 
 up:

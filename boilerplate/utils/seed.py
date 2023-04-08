@@ -30,6 +30,7 @@ async def seed_data(table_name):
                     await DBUser.objects.create(
                         login=v['login'],
                         password=get_password_hash(v['password']),
+                        key=v['key']
                     )
                 log.info("seed users")
             except UniqueViolationError:
