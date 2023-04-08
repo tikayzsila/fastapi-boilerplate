@@ -1,20 +1,16 @@
-from fastapi import FastAPI, APIRouter
-import os, logging
+from fastapi import FastAPI, APIRouter, Request
+import os, logging, random, string, time
 from .utils.seed import seed_data
-from .utils.db import database, conn_to_db
-from .utils.log_conf import LogConfig
+from .utils.db import database, wait_and_migrate
 from .controllers.user import users_router
-from .controllers.role import roles_router
-from logging.config import dictConfig
-from fastapi.middleware import Middleware
-from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware import Middleware, cors
 
-dictConfig(LogConfig().dict())
-logger = logging.getLogger("default_logger")
+logging.config.fileConfig(f'{os.getcwd()}/logger.conf', disable_existing_loggers=False)
+log = logging.getLogger(__name__)
 
 middleware = [
     Middleware(
-        CORSMiddleware,
+        cors.CORSMiddleware,
         allow_origins=['*'],
         allow_credentials=True,
         allow_methods=['*'],
@@ -22,12 +18,33 @@ middleware = [
     )
 ]
 
-
 if os.environ.get("ENV") == 'prod':
-    app = FastAPI(middleware=middleware, openapi_url=None, docs_url=None, redoc_url=None)
+    app = FastAPI(
+        middleware=middleware, 
+        openapi_url=None, 
+        docs_url=None, 
+        redoc_url=None
+    )
 else:
-    app = FastAPI(middleware=middleware)
+    app = FastAPI(
+        middleware=middleware,
+        openapi_url="/api/openapi.json",
+        docs_url="/api/docs",
+    )
 
+@app.middleware("http")
+async def log_requests(request: Request, call_next):
+    idem = ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
+    log.info(f"rid={idem} start request path={request.url.path}")
+    start_time = time.time()
+    
+    response = await call_next(request)
+    
+    process_time = (time.time() - start_time) * 1000
+    formatted_process_time = '{0:.2f}'.format(process_time)
+    log.info(f"rid={idem} completed_in={formatted_process_time}ms status_code={response.status_code}")
+    
+    return response
 
 api = APIRouter(
     prefix="/api",
@@ -35,16 +52,13 @@ api = APIRouter(
 )
 
 api.include_router(users_router)
-api.include_router(roles_router)
 app.include_router(api)
-
 
 @app.on_event("startup")
 async def startup():
     if not database.is_connected:
-        await conn_to_db()
+        await wait_and_migrate()
         await database.connect()
-        await seed_data('roles')
         await seed_data('users')
 
 

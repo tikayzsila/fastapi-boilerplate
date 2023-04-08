@@ -3,7 +3,6 @@ from typing import List
 
 class BaseUser(BaseModel):
     login: str
-    role_id: int 
 
 class CreateUser(BaseUser):
     password: str
@@ -14,7 +13,6 @@ class CreateUser(BaseUser):
 class User(BaseModel):
     user_id: int
     login: str
-    role_id: int
 
 class LoginUser(BaseModel):
     login: str
@@ -25,4 +23,3 @@ class GetAllUsers(BaseModel):
 
 class UpdateUser(BaseModel):
     login: str
-    role_id: int
