@@ -40,6 +40,7 @@ COPY --from=builder --chown=serve:serve $APP_PATH/dist/*.whl \
                     $APP_PATH/requirements.txt \
                     $APP_PATH/migrations \
                     $APP_PATH/alembic.ini \
+                    $APP_PATH/logger.conf \
                     $APP_PATH/seed.j2 ./
 
 COPY --from=builder --chown=serve:serve $APP_PATH/migrations $APP_PATH/migrations
