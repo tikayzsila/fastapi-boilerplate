@@ -5,12 +5,7 @@ from datetime import datetime, timedelta
 from fastapi import Depends, HTTPException, status, Request
 from fastapi.security import HTTPBearer
 from authlib.jose import jwt, errors
-import secrets, os
-from cryptography.hazmat.primitives import serialization
-from cryptography import x509
-
-cert_data = open("certs/sign.pem", "r").read()
-PUBLIC_KEY_PEM = x509.load_pem_x509_certificate(str.encode(cert_data)).public_bytes(serialization.Encoding.PEM)
+import secrets
 
 ALGORITHM = {'alg': 'HS256'}
 USERS_TO_CHECK = {}
@@ -98,8 +93,10 @@ async def get_token_data(token: str):
     )
 
     try:
+        user_id = await DBUsersTokens.objects.filter(acc_token=token).values_list(flatten=True, fields='user_id')
+        user_key = await get_users_key(user_id[0])
         # добавить метод для получения пейлоада токена
-        payload = jwt.decode(token, PUBLIC_KEY_PEM)
+        payload = jwt.decode(token, user_key)
         data: str = payload.get("sub")
         
         if data is None:
