@@ -8,7 +8,7 @@ s:
 		"$$APP_MODULE"
 
 install:
-	poetry env use python3.10 && poetry install --no-root
+	poetry env use python3.11 && poetry install --no-root
 
 db:
 	docker run --name=TesT-db \
