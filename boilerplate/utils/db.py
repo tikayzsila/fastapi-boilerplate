@@ -11,7 +11,6 @@ db_user = os.environ.get("PG_USER")
 db_password = os.environ.get("PG_PASSWORD")
 
 URL: str = f"postgresql://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}?sslmode=disable"
-
 database = databases.Database(URL)
 metadata = sqlalchemy.MetaData()
 
@@ -21,6 +20,6 @@ class BaseMeta(ormar.ModelMeta):
     metadata = metadata
 
 
-async def wait_and_migrate():
-    subprocess.run("alembic upgrade head", shell=True, check=True)
+async def migrate():
+    subprocess.run("poetry run alembic upgrade head", shell=True, check=True)
     print("Postgres is up - executing command")

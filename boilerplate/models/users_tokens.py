@@ -5,7 +5,7 @@ from ..utils.db import BaseMeta
 from datetime import datetime, timedelta
 from .user import DBUser
 
-exp_time = cast(int, os.environ.get("ACCESS_TOKEN_EXPIRE_MINUTES"))
+exp_time = cast(str, os.environ.get("ACCESS_TOKEN_EXPIRE_MINUTES"))
 
 
 class DBUsersTokens(ormar.Model):

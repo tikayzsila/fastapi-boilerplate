@@ -4,7 +4,7 @@ import logging
 from typing import cast
 from logging import config
 from .utils.seed import seed_data
-from .utils.db import database, wait_and_migrate
+from .utils.db import database, migrate
 from .controllers.user import users_router
 from fastapi.middleware import Middleware, cors
 
@@ -56,8 +56,8 @@ app.include_router(api)
 @app.on_event("startup")
 async def startup():
     if not database.is_connected:
-        await wait_and_migrate()
         await database.connect()
+        await migrate()
         await seed_data("users")
 
 

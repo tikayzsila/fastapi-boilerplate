@@ -46,8 +46,7 @@ async def login_for_token(user: LoginUser) -> dict[str, str]:
     user = cast(LoginUser, user_from_db)
     user_data = await DBUser.objects.filter(login=user.login).values(["user_id", "login", "key"])
     payload_string = user_data[0]["login"]
-
-    access_token_expires = timedelta(minutes=cast(int, os.environ.get("ACCESS_TOKEN_EXPIRE_MINUTES")))
+    access_token_expires = timedelta(minutes=int(cast(str, os.environ.get("ACCESS_TOKEN_EXPIRE_MINUTES"))))
     access_token = j.create_access_token(
         user_key=user_data[0]["key"],
         data={"sub": payload_string},
