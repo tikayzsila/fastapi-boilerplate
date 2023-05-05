@@ -1,0 +1,22 @@
+{
+    "python.linting.flake8Enabled": true,
+    "files.autoSave": "afterDelay",
+    "files.autoSaveDelay": 1000,
+    "python.linting.lintOnSave": true,
+    "python.formatting.provider": "black",
+    "python.formatting.blackArgs": [
+        "--line-length=120"
+    ],
+    "python.linting.mypyEnabled": true,
+    "python.linting.mypyArgs": [
+        "--ignore-missing-imports",
+        "--follow-imports=silent",
+        "--show-column-numbers",
+        "--allow-untyped-defs",
+        "--allow-subclassing-any",
+        "--allow-untyped-calls",
+        "--strict_optional=false",
+        "--strict"
+    ],
+    "editor.formatOnSave": true
+}
