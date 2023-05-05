@@ -1,6 +1,7 @@
 from fastapi import FastAPI, APIRouter, Request
 import os
 import logging
+from typing import cast
 from logging import config
 from .utils.seed import seed_data
 from .utils.db import database, wait_and_migrate
@@ -31,14 +32,14 @@ else:
 
 
 @app.middleware("http")
-# type: ignore
 async def log_requests(request: Request, call_next):
     response = await call_next(request)
+    client_ip = cast(str, request.client)
     logging.info(
-        f"HTTP Request - {request.method} {request.url.path} - "
-        f"HTTP Response - {response.status_code} "
-        f"Client IP - {request.client.host}\n"
-        f"Request {request.headers}"
+        f"HTTP Request - {request.method} {request.url.path} - \n \
+        HTTP Response - {response.status_code} \n \
+        Client IP - {client_ip} \n \
+        Request {request.headers}"
     )
     return response
 

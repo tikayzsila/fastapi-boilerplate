@@ -8,7 +8,7 @@ from authlib.jose import jwt, errors
 import secrets
 
 ALGORITHM = {"alg": "HS256"}
-USERS_TO_CHECK = {}
+USERS_TO_CHECK: dict = {}
 auth_scheme = HTTPBearer()
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -35,12 +35,12 @@ def create_access_token(
     data: dict[str, str | None],
     expires_delta: timedelta | None = None,
 ) -> bytes:
-    to_encode = data.copy()
+    to_encode: dict[str, str | None] = data.copy()
     if expires_delta:
         expire = datetime.utcnow() + expires_delta
     else:
         expire = datetime.utcnow() + timedelta(minutes=15)
-    to_encode.update({"exp": expire})
+    to_encode.update({"exp": str(expire)})
     encoded_jwt = jwt.encode(header=ALGORITHM, payload=to_encode, key=user_key)
     return encoded_jwt
 
@@ -56,7 +56,9 @@ async def get_current_user(request: Request, token: str = Depends(auth_scheme)) 
         headers={"WWW-Authenticate": "Bearer"},
     )
     auth = request.headers.get("authorization")
-    parts = auth.split()
+
+    if auth:
+        parts = auth.split()
 
     if parts[0].lower() != "bearer":
         raise HTTPException(status_code=401, detail="Authorization header must start with Bearer")

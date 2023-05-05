@@ -36,7 +36,7 @@ ENV LANG ru_RU.UTF-8
 ENV LC_ALL ru_RU.UTF-8
 ENV TZ="Europe/Moscow"
 
-COPY --from=builder --chown=serve:serve $APP_PATH/dist/*.whl \ 
+COPY --from=builder --chown=serve:serve $APP_PATH/dist/*.whl \
                     $APP_PATH/requirements.txt \
                     $APP_PATH/migrations \
                     $APP_PATH/alembic.ini \
@@ -47,4 +47,3 @@ COPY --from=builder --chown=serve:serve $APP_PATH/migrations $APP_PATH/migration
 
 RUN pip install *.whl -r requirements.txt && rm *.txt *.whl
 USER serve
-

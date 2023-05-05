@@ -2,8 +2,8 @@ from logging.config import fileConfig
 
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
-from boilerplate.models.user import DBUser
-from boilerplate.models.users_tokens import DBUsersTokens
+from boilerplate.models.user import *
+from boilerplate.models.users_tokens import *
 from boilerplate.utils.db import URL, BaseMeta
 from alembic import context
 

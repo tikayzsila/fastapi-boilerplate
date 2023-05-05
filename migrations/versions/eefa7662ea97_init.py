@@ -1,7 +1,7 @@
 """init
 
 Revision ID: eefa7662ea97
-Revises: 
+Revises:
 Create Date: 2023-04-08 14:08:13.913480
 
 """
@@ -34,9 +34,7 @@ def upgrade() -> None:
         sa.Column("user_id", sa.Integer(), nullable=True),
         sa.Column("acc_token", sa.String(length=200), nullable=False),
         sa.Column("exp_time", sa.DateTime(timezone=True), nullable=True),
-        sa.ForeignKeyConstraint(
-            ["user_id"], ["users.user_id"], name="fk_users_tokens_users_user_id_user_id"
-        ),
+        sa.ForeignKeyConstraint(["user_id"], ["users.user_id"], name="fk_users_tokens_users_user_id_user_id"),
         sa.PrimaryKeyConstraint("id"),
         sa.UniqueConstraint("acc_token"),
     )
