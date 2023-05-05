@@ -37,9 +37,9 @@ async def log_requests(request: Request, call_next):
     client_ip = cast(str, request.client)
     logging.info(
         f"HTTP Request - {request.method} {request.url.path} - \n \
-        HTTP Response - {response.status_code} \n \
-        Client IP - {client_ip} \n \
-        Request {request.headers}"
+HTTP Response - {response.status_code} \n \
+Client IP - {client_ip} \n \
+Request {request.headers}"
     )
     return response
 
