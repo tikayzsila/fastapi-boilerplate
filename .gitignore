@@ -1,0 +1,8 @@
+.envrc
+.venv
+__pycache__/
+*.pyc
+*.pem
+.mypy*
+grafana*
+prometheus*
